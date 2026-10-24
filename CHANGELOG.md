@@ -4,6 +4,19 @@ All notable changes to Vesper are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] — 2026-10-23
+
+### Fixed
+
+- **Launch crash after the 1.1.0 redesign.** The destination catalogue was
+  built in the sealed class initializer. Touching `VesperDestination.Chat.route`
+  first initialized `Chat`, whose construction re-entered the superclass
+  initializer while `Chat.INSTANCE` was still null, so the catalogue stored a
+  null entry and the router crashed on the first lookup. The catalogue is now
+  initialized lazily, after the class hierarchy exists.
+  Verified on an Android 37 emulator: cold launch, every tab, every More
+  destination, rotation, and the `vesper://open/settings` deep link.
+
 ## [1.1.0] — 2026-10-23
 
 A full quality pass: the app shell, the design system, connection reliability,

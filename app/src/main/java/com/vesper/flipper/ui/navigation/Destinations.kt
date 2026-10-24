@@ -143,14 +143,31 @@ sealed class VesperDestination(
     )
 
     companion object {
-        val primary: List<VesperDestination> = listOf(Chat, Device, Arsenal, Forge, More)
+        // IMPORTANT: these lists are lazy on purpose.
+        //
+        // Building them in the class initializer creates a class-init cycle:
+        // touching VesperDestination.Chat.route initializes Chat first, which
+        // initializes this (its superclass) while Chat.INSTANCE is still null.
+        // The initializer then stores a null Chat in the list and the router
+        // crashes on the first lookup. Lazy lists are created after the class
+        // hierarchy is initialized, so every INSTANCE is non-null.
+        val primary: List<VesperDestination> by lazy {
+            listOf(Chat, Device, Arsenal, Forge, More)
+        }
 
-        val tools: List<VesperDestination> = listOf(Library, Files, Audit, Oracle, PayloadLab, Ops)
+        val tools: List<VesperDestination> by lazy {
+            listOf(Library, Files, Audit, Oracle, PayloadLab, Ops)
+        }
 
-        val preferences: List<VesperDestination> = listOf(Settings, Docs)
+        val preferences: List<VesperDestination> by lazy {
+            listOf(Settings, Docs)
+        }
 
-        val all: List<VesperDestination> = primary + tools + preferences
+        val all: List<VesperDestination> by lazy {
+            primary + tools + preferences
+        }
 
-        fun byRoute(route: String?): VesperDestination? = all.firstOrNull { it.route == route }
+        fun byRoute(route: String?): VesperDestination? =
+            all.firstOrNull { it.route == route }
     }
 }
